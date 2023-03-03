@@ -1,83 +1,90 @@
-import time
-def menu():
-    if input("Хотите сыграть? (y / n): ") == "y":
-        pole_reload()
+def greet():
+    print("-------------------")
+    print("   Правила игры    ")
+    print("         в         ")
+    print("  крестики-нолики  ")
+    print("-------------------")
+    print(" формат ввода: x y ")
+    print(" x - номер строки  ")
+    print(" y - номер столбца ")
 
-    else:
-        print("Жаль, всего хорошего!")
-        exit()
 
-def pole_reload():
-    print("\n" * 10)
-    for i in range(len(pole)):
-        for j in range(len(pole[i])):
-            print(pole[i][j], end=' ')
-        print()
+def show():
+    print()
+    print("    | 0 | 1 | 2 | ")
+    print("  --------------- ")
+    for i, row in enumerate(field):
+        row_str = f"  {i} | {' | '.join(row)} | "
+        print(row_str)
+        print("  --------------- ")
+    print()
 
-def hod():
+
+def ask():
     while True:
-        coord = input("Введите координаты: ").split()
-        if len(coord) != 2:
-            print("Введите 2 координата.")
+        cords = input("         Ваш ход: ").split()
+
+        if len(cords) != 2:
+            print(" Введите 2 координаты! ")
             continue
 
-        a, b = coord
+        x, y = cords
 
-        if not (a.isdigit()) or not (b.isdigit()):
-            print("Введите числа!")
+        if not (x.isdigit()) or not (y.isdigit()):
+            print(" Вводите только числа! ")
             continue
 
-        a, b = int(a), int(b)
+        x, y = int(x), int(y)
 
-        if 1 > a > 3 and 1 > b > 3:
-            print("Координаты вне игрового поля, попробуйте еще раз")
+        if 0 > x or x > 2 or 0 > y or y > 2:
+            print(" Координаты вне диапазона! ")
             continue
 
-        if pole[a - 1][b - 1] != ".":
-            print("Квадрат занят, попробуйте другой")
+        if field[x][y] != " ":
+            print(" Клетка занята! ")
             continue
 
-        return a, b
+        return x, y
 
-def proverka():
-    winner = [((0, 0), (0, 1), (0, 2)), ((0, 0), (1, 1), (2, 2)), ((0, 2), (1, 1), (2, 0)), ((1, 0), (1, 1), (1, 2)),
-              ((2, 0), (2, 1), (2, 2)), ((0, 0), (1, 0), (2, 0)), ((0, 1), (1, 1), (2, 1)), ((0, 2), (1, 2), (2, 2))]
-    for cord in winner:
-        x, y, z = cord[0],cord[1],cord[2]
-        if pole[x[0]][x[1]]==pole[y[0]][y[1]]==pole[z[0]][z[1]]!=".":
-            pole_reload()
-            print(f"Победили {pole[x[0]][x[1]]}!")
+
+def check_win():
+    win_cord = (((0, 0), (0, 1), (0, 2)), ((1, 0), (1, 1), (1, 2)), ((2, 0), (2, 1), (2, 2)),
+                ((0, 2), (1, 1), (2, 0)), ((0, 0), (1, 1), (2, 2)), ((0, 0), (1, 0), (2, 0)),
+                ((0, 1), (1, 1), (2, 1)), ((0, 2), (1, 2), (2, 2)))
+    for cord in win_cord:
+        symbols = []
+        for c in cord:
+            symbols.append(field[c[0]][c[1]])
+        if symbols == ["X", "X", "X"]:
+            print("Выиграл Крестик!!!")
+            return True
+        if symbols == ["0", "0", "0"]:
+            print("Выиграл Нолик!!!")
             return True
     return False
 
-count = 0
-pole = [["."]*3 for i in range(3)]
-menu()
 
+greet()
+field = [[" "] * 3 for i in range(3)]
+count = 0
 while True:
     count += 1
+    show()
+    if count % 2 == 1:
+        print(" Ходит крестик!")
+    else:
+        print(" Ходит нолик!")
 
-    pole_reload()
+    x, y = ask()
 
     if count % 2 == 1:
-        print("Ходит крестик")
+        field[x][y] = "X"
     else:
-        print("Ходит нолик")
+        field[x][y] = "0"
 
-    a, b = hod()
-
-    if count % 2 == 1:
-        pole[a - 1][b - 1] = "X"
-    else:
-        pole[a - 1][b - 1] = "0"
-
-    if proverka():
+    if check_win():
         break
-
 
     if count == 9:
-        print("Ходы закончились")
+        print(" Ничья, пора повторить!")
         break
-
-
-time.sleep(3)
